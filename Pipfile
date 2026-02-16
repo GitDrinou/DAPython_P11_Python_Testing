@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-dotenv = "*"
+flake8 = "*"
+pytest = "*"
+pytest-flask = "*"
+pytest-cov = "*"
+pytest-html = "*"
+click = "==7.1.2"
+flask = "==1.1.2"
+itsdangerous = "==1.1.0"
+jinja2 = "==2.11.2"
+markupsafe = "==1.1.1"
+werkzeug = "==1.0.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"

@@ -5,3 +5,7 @@ lib
 tests/
 .envrc
 __pycache__
+.DS_Store/
+.env
+.idea/
+Pipfile.lock
