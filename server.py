@@ -19,9 +19,18 @@ def load_clubs():
 
 
 def load_competitions():
-    with open('competitions.json') as comps:
-        list_of_competitions = json.load(comps)['competitions']
-        return list_of_competitions
+    try:
+        with open('competitions.json') as comps:
+            list_of_competitions = json.load(comps)['competitions']
+            return list_of_competitions
+    except FileNotFoundError:
+        return {"error": "Le fichier competitions.json est introuvable."}
+    except JSONDecodeError:
+        return {"error": "Le fichier competitions.json n'est pas un JSON "
+                         "valide."}
+    except KeyError:
+        return {"error": "Le fichier competitions.json ne contient pas de clé "
+                         "'competitions'."}
 
 
 app = Flask(__name__)

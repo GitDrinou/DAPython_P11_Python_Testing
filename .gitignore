@@ -2,9 +2,9 @@ bin
 include
 lib
 .Python
-tests/
 .envrc
 __pycache__
+__init__.py
 .DS_Store/
 .env
 .idea/
