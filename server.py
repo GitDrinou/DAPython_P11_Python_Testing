@@ -1,13 +1,20 @@
 import json
 from json import JSONDecodeError
+from typing import TypedDict
 
 from flask import Flask, render_template, request, redirect, flash, url_for
+
+
+class Club(TypedDict):
+    name: str
+    email: str
+    points: str
 
 
 def load_clubs():
     try:
         with open('clubs.json') as c:
-            list_of_clubs = json.load(c)['clubs']
+            list_of_clubs: List[Club] = json.load(c)['clubs']
             return list_of_clubs
     except FileNotFoundError:
         return {"error": "Le fichier clubs.json est introuvable."}
@@ -46,11 +53,19 @@ def index():
 
 
 @app.route('/showSummary', methods=['POST'])
-def showSummary():
-    club = [club for club in clubs if club['email'] ==
-            request.form['email']][0]
-    return render_template('welcome.html', club=club,
-                           competitions=competitions)
+def show_summary():
+    email = request.form.get('email')
+
+    club = next((club for club in clubs if club['email'] == email), None)
+
+    if not club:
+        return render_template('index.html', error="Cet email est inconnu")
+
+    return render_template(
+        'welcome.html',
+        club=club,
+        competitions=competitions
+    )
 
 
 @app.route('/book/<competition>/<club>')
