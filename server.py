@@ -60,15 +60,14 @@ def show_summary():
     email = request.form.get('email')
 
     if not re.match(EMAIL_REGEX, email):
-        return render_template(
-            'index.html',
-            error="Cet email ne correspond pas au format attendu"
-        )
+        flash("Format d'email invalide. Veuillez réessayer.", 'error')
+        return redirect(url_for('index'))
 
     club = next((club for club in clubs if club['email'] == email), None)
 
     if not club:
-        return render_template('index.html', error="Cet email est inconnu")
+        flash("Aucun club trouvé avec cet email. Veuillez réessayer.", 'error')
+        return redirect(url_for('index'))
 
     return render_template(
         'welcome.html',

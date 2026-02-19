@@ -1,16 +1,37 @@
+from flask import get_flashed_messages
+
+
 def test_unknown_email(client):
-    response = client.post('/showSummary', data={'email': 'test@test.com'})
+    error_msg = "Aucun club trouvé avec cet email. Veuillez réessayer."
+    response = client.post(
+        '/showSummary',
+        data={'email': 'test@test.com'},
+        follow_redirects=True
+    )
     assert response.status_code == 200
-    assert b'Cet email est inconnu' in response.data
+    with client.session_transaction():
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ("error", error_msg) in flashed_messages
 
 
 def test_invalid_email_format(client):
-    response = client.post('/showSummary', data={'email': 'test@'})
+    error_msg = "Format d'email invalide. Veuillez réessayer."
+    response = client.post(
+        '/showSummary',
+        data={'email': 'test@'},
+        follow_redirects=True
+    )
     assert response.status_code == 200
-    assert b'Cet email ne correspond pas au format attendu' in response.data
+    with client.session_transaction():
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ("error", error_msg) in flashed_messages
 
 
 def test_valid_email(client):
-    response = client.post('/showSummary', data={'email': 'club@test.com'})
+    response = client.post(
+        '/showSummary',
+        data={'email': 'club@test.com'},
+        follow_redirects=True
+    )
     assert response.status_code == 200
     assert b'Welcome' in response.data
