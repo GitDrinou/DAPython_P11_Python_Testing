@@ -1,8 +1,11 @@
 import json
+import re
 from json import JSONDecodeError
 from typing import TypedDict
 
 from flask import Flask, render_template, request, redirect, flash, url_for
+
+from constants import EMAIL_REGEX
 
 
 class Club(TypedDict):
@@ -14,7 +17,7 @@ class Club(TypedDict):
 def load_clubs():
     try:
         with open('clubs.json') as c:
-            list_of_clubs: List[Club] = json.load(c)['clubs']
+            list_of_clubs: list[Club] = json.load(c)['clubs']
             return list_of_clubs
     except FileNotFoundError:
         return {"error": "Le fichier clubs.json est introuvable."}
@@ -55,6 +58,12 @@ def index():
 @app.route('/showSummary', methods=['POST'])
 def show_summary():
     email = request.form.get('email')
+
+    if not re.match(EMAIL_REGEX, email):
+        return render_template(
+            'index.html',
+            error="Cet email ne correspond pas au format attendu"
+        )
 
     club = next((club for club in clubs if club['email'] == email), None)
 
