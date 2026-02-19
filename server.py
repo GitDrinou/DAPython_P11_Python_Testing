@@ -72,21 +72,40 @@ def show_summary():
     return render_template(
         'welcome.html',
         club=club,
-        competitions=competitions
-    )
+        competitions=competitions)
 
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
-    if foundClub and foundCompetition:
-        return render_template('booking.html', club=foundClub,
-                               competition=foundCompetition)
-    else:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club,
-                               competitions=competitions)
+    if not competition or not club:
+        flash("Le nom du club ou de la compétition est manquant.")
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
+
+    found_club = next((c for c in clubs if c['name'] == club), None)
+    found_competition = next(
+        (c for c in competitions if c['name'] == competition),
+        None)
+
+    if not found_club or not found_competition:
+        if not found_club:
+            flash(f"Le club '{club}' n'a pas été trouvé.", 'error')
+
+        if not found_competition:
+            flash(f"La compétition '{competition}' n'a pas été trouvée.",
+                  'error')
+
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
+
+    return render_template(
+        'booking.html',
+        club=found_club,
+        competition=found_competition)
 
 
 @app.route('/purchasePlaces', methods=['POST'])
