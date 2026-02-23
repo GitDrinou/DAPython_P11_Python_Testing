@@ -5,7 +5,7 @@ lib
 .envrc
 __pycache__
 __init__.py
-.DS_Store/
+.DS_Store
 .env
 .idea/
 Pipfile.lock

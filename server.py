@@ -109,16 +109,46 @@ def book(competition, club):
 
 
 @app.route('/purchasePlaces', methods=['POST'])
-def purchasePlaces():
-    competition = [c for c in competitions if c['name'] == request.form[
-        'competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
-    competition['numberOfPlaces'] = int(competition[
-                                            'numberOfPlaces'])-placesRequired
-    flash('Great-booking complete!')
-    return render_template('welcome.html', club=club,
-                           competitions=competitions)
+def purchase_places():
+    competition = next(
+        (c for c in competitions if c['name'] == request.form['competition']),
+        None)
+    club = next((c for c in clubs if c['name'] == request.form['club']), None)
+    places_required = int(request.form['places'])
+    club_points = int(club['points'])
+    available_places = int(competition['numberOfPlaces'])
+
+    if not competition or not club:
+        flash('Competition or club not found.')
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
+
+    if (club_points >= places_required and available_places >=
+            places_required):
+        competition['numberOfPlaces'] = available_places - places_required
+        club['points'] = str(int(club['points']) - places_required)
+        flash(f"Great-booking complete, with {places_required} places "
+              f"booked", 'success')
+
+    if int(competition['numberOfPlaces']) == 0:
+        flash("Cette compétition est complète.", 'error')
+        return redirect(url_for('index'))
+
+    if places_required > int(competition['numberOfPlaces']):
+        flash('Pas assez de places disponibles', 'error')
+        return redirect(url_for('index'))
+
+    if places_required > 12:
+        flash("Vous ne pouvez pas réserver plus de 12 places par "
+              "compétition", 'error')
+        return redirect(url_for('index'))
+
+    return render_template(
+        'welcome.html',
+        club=club,
+        competitions=competitions)
 
 
 # TODO: Add route for points display
