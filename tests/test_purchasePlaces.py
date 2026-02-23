@@ -68,7 +68,7 @@ def test_competition_full_message(client):
     competition = next(
         (c for c in competitions if c['name'] == 'Spring Festival'), None)
     competition['numberOfPlaces'] = '0'
-    error_msg = "Cette compétition est complète."
+    error_msg = "This competition is full."
     test_data = {
         'competition': 'Spring Festival',
         'club': 'Simply Lift',

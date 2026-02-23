@@ -2,9 +2,8 @@ import json
 import re
 from json import JSONDecodeError
 from typing import TypedDict
-
-from flask import Flask, render_template, request, redirect, flash, url_for
-
+from flask import Flask, render_template, request, redirect, flash, url_for, \
+    session
 from constants import EMAIL_REGEX
 
 
@@ -20,11 +19,11 @@ def load_clubs():
             list_of_clubs: list[Club] = json.load(c)['clubs']
             return list_of_clubs
     except FileNotFoundError:
-        return {"error": "Le fichier clubs.json est introuvable."}
+        return {"error": "The file clubs.json could not be found."}
     except JSONDecodeError:
-        return {"error": "Le fichier clubs.json n'est pas un JSON valide."}
+        return {"error": "The clubs.json file is not a valid JSON file."}
     except KeyError:
-        return {"error": "Le fichier clubs.json ne contient pas de clé "
+        return {"error": "The clubs.json file does not contain a key "
                          "'clubs'."}
 
 
@@ -34,12 +33,12 @@ def load_competitions():
             list_of_competitions = json.load(comps)['competitions']
             return list_of_competitions
     except FileNotFoundError:
-        return {"error": "Le fichier competitions.json est introuvable."}
+        return {"error": "The file competitions.json could not be found."}
     except JSONDecodeError:
-        return {"error": "Le fichier competitions.json n'est pas un JSON "
-                         "valide."}
+        return {"error": "The competitions.json file is not a valid JSON "
+                         "file."}
     except KeyError:
-        return {"error": "Le fichier competitions.json ne contient pas de clé "
+        return {"error": "The competitions.json file does not contain a key "
                          "'competitions'."}
 
 
@@ -60,13 +59,14 @@ def show_summary():
     email = request.form.get('email')
 
     if not re.match(EMAIL_REGEX, email):
-        flash("Format d'email invalide. Veuillez réessayer.", 'error')
+        flash("Invalid email format. Please try again.", 'error')
         return redirect(url_for('index'))
 
     club = next((club for club in clubs if club['email'] == email), None)
 
     if not club:
-        flash("Aucun club trouvé avec cet email. Veuillez réessayer.", 'error')
+        flash("No clubs were found with this email address. Please try "
+              "again.", 'error')
         return redirect(url_for('index'))
 
     return render_template(
@@ -78,7 +78,7 @@ def show_summary():
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
     if not competition or not club:
-        flash("Le nom du club ou de la compétition est manquant.")
+        flash("The name of the club or competition is missing.")
         return render_template(
             'welcome.html',
             club=club,
@@ -91,10 +91,10 @@ def book(competition, club):
 
     if not found_club or not found_competition:
         if not found_club:
-            flash(f"Le club '{club}' n'a pas été trouvé.", 'error')
+            flash(f"The club '{club}' was not found.", 'error')
 
         if not found_competition:
-            flash(f"La compétition '{competition}' n'a pas été trouvée.",
+            flash(f"The competition '{competition}' was not found.",
                   'error')
 
         return render_template(
@@ -133,7 +133,7 @@ def purchase_places():
               f"booked", 'success')
 
     if int(competition['numberOfPlaces']) == 0:
-        flash("Cette compétition est complète.", 'error')
+        flash("This competition is full.", 'error')
         return redirect(url_for('index'))
 
     if places_required > int(competition['numberOfPlaces']):
@@ -156,4 +156,6 @@ def purchase_places():
 
 @app.route('/logout')
 def logout():
+    session.pop('club', None)
+    flash('You have been logged out.', 'info')
     return redirect(url_for('index'))

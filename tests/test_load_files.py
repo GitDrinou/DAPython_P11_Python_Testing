@@ -35,15 +35,15 @@ def test_load_clubs_file_not_found():
             'builtins.open',
             side_effect=FileNotFoundError("Fichier introuvable")):
         result = load_clubs()
-        assert result == {"error": "Le fichier clubs.json est introuvable."}
+        assert result == {"error": "The file clubs.json could not be found."}
 
 
 def test_load_clubs_invalid_json():
     invalid_json_content = "something that's not a json file"
     with patch('builtins.open', mock_open(read_data=invalid_json_content)):
         result = load_clubs()
-        assert result == {"error": "Le fichier clubs.json n'est pas un JSON "
-                                   "valide."}
+        assert result == {"error": "The clubs.json file is not a valid JSON "
+                                   "file."}
 
 
 def test_load_clubs_missing_key():
@@ -52,7 +52,7 @@ def test_load_clubs_missing_key():
     with patch('builtins.open', mock_open(read_data=json_content)):
         result = load_clubs()
         assert result == {
-            "error": "Le fichier clubs.json ne contient pas de clé 'clubs'."
+            "error": "The clubs.json file does not contain a key 'clubs'."
         }
 
 
@@ -70,15 +70,15 @@ def test_load_competitions_file_not_found():
             side_effect=FileNotFoundError("Fichier introuvable")):
         result = load_competitions()
         assert result == {
-            "error": "Le fichier competitions.json est introuvable."}
+            "error": "The file competitions.json could not be found."}
 
 
 def test_load_competitions_invalid_json():
     invalid_json_content = "something that's not a json file"
     with patch('builtins.open', mock_open(read_data=invalid_json_content)):
         result = load_competitions()
-        assert result == {"error": "Le fichier competitions.json n'est pas un "
-                                   "JSON valide."}
+        assert result == {"error": "The competitions.json file is not a "
+                                   "valid JSON file."}
 
 
 def test_load_competitions_missing_key():
@@ -87,6 +87,6 @@ def test_load_competitions_missing_key():
     with patch('builtins.open', mock_open(read_data=json_content)):
         result = load_competitions()
         assert result == {
-            "error": "Le fichier competitions.json ne contient pas de clé "
+            "error": "The competitions.json file does not contain a key "
                      "'competitions'."
         }
