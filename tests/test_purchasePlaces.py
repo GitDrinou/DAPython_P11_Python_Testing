@@ -84,7 +84,6 @@ def test_prevent_overbooking(client):
         assert ("error", error_msg) in flashed_messages
 
 
-
 def test_points_not_deducted_if_more_than_12_places(client):
     initial_points = int(server.clubs[0]['points'])
     test_data = {
@@ -96,3 +95,37 @@ def test_points_not_deducted_if_more_than_12_places(client):
                            follow_redirects=True)
     assert response.status_code == 200
     assert int(server.clubs[0]['points']) == initial_points
+
+
+def test_cannot_book_more_than_12_total_for_same_competition(client):
+    error_msg = "You cannot reserve more than 12 places per competition"
+    test_data1 = {
+        "competition": "Spring Festival",
+        "club": "Simply Lift",
+        "places": "12"
+    }
+    test_data2 = {
+        "competition": "Spring Festival",
+        "club": "Simply Lift",
+        "places": "1"
+    }
+    response1 = client.post(
+        "/purchasePlaces",
+        data=test_data1,
+        follow_redirects=True,
+    )
+    assert response1.status_code == 200
+    assert int(server.competitions[0]["numberOfPlaces"]) == 13
+    assert int(server.clubs[0]["points"]) == 1
+
+    response2 = client.post(
+        "/purchasePlaces",
+        data=test_data2,
+        follow_redirects=True,
+    )
+    assert response2.status_code == 200
+    with client.session_transaction():
+        flashed_messages = get_flashed_messages(with_categories=True)
+        assert ("error", error_msg) in flashed_messages
+    assert int(server.competitions[0]["numberOfPlaces"]) == 13
+    assert int(server.clubs[0]["points"]) == 1

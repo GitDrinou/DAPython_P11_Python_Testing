@@ -123,28 +123,45 @@ def purchase_places():
     club_points = int(club['points'])
     available_places = int(competition['numberOfPlaces'])
 
+    bookings_by_club = competition.setdefault('bookings_by_club', {})
+    already_booked = int(bookings_by_club.get(club['name'], 0))
+
     if int(competition['numberOfPlaces']) == 0:
         flash("This competition is full.", 'error')
-        return redirect(url_for('index'))
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
 
     if places_required > available_places:
         flash("Not enough places available", 'error')
-        return redirect(url_for('index'))
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
 
-    if places_required > 12:
+    if already_booked + places_required > 12:
         flash("You cannot reserve more than 12 places per competition",
               'error')
-        return redirect(url_for('index'))
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
 
     if places_required > club_points:
         flash("Not enough points", 'error')
-        return redirect(url_for('index'))
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=competitions)
 
     competition['numberOfPlaces'] = available_places - places_required
     club['points'] = str(int(club['points']) - places_required)
+    bookings_by_club[club['name']] = already_booked + places_required
 
-    flash(f"Great-booking complete, with {places_required} places "
-              f"booked", 'success')
+    success_msg = (f"Great-booking complete, with {places_required} places "
+                   f"booked")
+    flash(success_msg, 'success')
 
     return render_template(
         'welcome.html',
