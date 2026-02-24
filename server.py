@@ -114,36 +114,37 @@ def purchase_places():
         (c for c in competitions if c['name'] == request.form['competition']),
         None)
     club = next((c for c in clubs if c['name'] == request.form['club']), None)
+
+    if not competition or not club:
+        flash('Competition or club not found.', 'error')
+        return redirect(url_for('index'))
+
     places_required = int(request.form['places'])
     club_points = int(club['points'])
     available_places = int(competition['numberOfPlaces'])
-
-    if not competition or not club:
-        flash('Competition or club not found.')
-        return render_template(
-            'welcome.html',
-            club=club,
-            competitions=competitions)
-
-    if (club_points >= places_required and available_places >=
-            places_required):
-        competition['numberOfPlaces'] = available_places - places_required
-        club['points'] = str(int(club['points']) - places_required)
-        flash(f"Great-booking complete, with {places_required} places "
-              f"booked", 'success')
 
     if int(competition['numberOfPlaces']) == 0:
         flash("This competition is full.", 'error')
         return redirect(url_for('index'))
 
-    if places_required > int(competition['numberOfPlaces']):
-        flash('Pas assez de places disponibles', 'error')
+    if places_required > available_places:
+        flash("Not enough places available", 'error')
         return redirect(url_for('index'))
 
     if places_required > 12:
-        flash("Vous ne pouvez pas réserver plus de 12 places par "
-              "compétition", 'error')
+        flash("You cannot reserve more than 12 places per competition",
+              'error')
         return redirect(url_for('index'))
+
+    if places_required > club_points:
+        flash("Not enough points", 'error')
+        return redirect(url_for('index'))
+
+    competition['numberOfPlaces'] = available_places - places_required
+    club['points'] = str(int(club['points']) - places_required)
+
+    flash(f"Great-booking complete, with {places_required} places "
+              f"booked", 'success')
 
     return render_template(
         'welcome.html',
