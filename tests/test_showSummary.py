@@ -1,4 +1,6 @@
 from flask import get_flashed_messages
+from datetime import datetime
+import server
 
 
 def test_unknown_email(client):
@@ -45,3 +47,19 @@ def test_logout_success(client):
     with client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("info", "You have been logged out.") in flashed_messages
+
+
+def test_get_competitions_from_today_filters_past_competitions():
+    now = datetime(2026, 2, 24, 9, 0, 0)
+
+    competitions = [
+        {"name": "Past", "date": "2026-02-23 10:00:00",
+         "numberOfPlaces": "10"},
+        {"name": "Today", "date": "2026-02-24 00:00:00",
+         "numberOfPlaces": "10"},
+        {"name": "Future", "date": "2026-02-25 09:00:00",
+         "numberOfPlaces": "10"},
+    ]
+
+    filtered = server.get_competitions_from_today(competitions, now=now)
+    assert [c["name"] for c in filtered] == ["Today", "Future"]

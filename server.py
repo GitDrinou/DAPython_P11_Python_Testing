@@ -1,10 +1,11 @@
 import json
 import re
+from datetime import datetime
 from json import JSONDecodeError
 from typing import TypedDict
 from flask import Flask, render_template, request, redirect, flash, url_for, \
     session
-from constants import EMAIL_REGEX
+from constants import EMAIL_REGEX, DATE_FORMAT
 
 
 class Club(TypedDict):
@@ -42,6 +43,23 @@ def load_competitions():
                          "'competitions'."}
 
 
+def get_competitions_from_today(list_of_competitions, now=None):
+    """Return competitions whose date is >= today's date."""
+    if now is None:
+        now = datetime.now()
+
+    today = now.date()
+    upcoming_competitions = []
+
+    for comp in list_of_competitions:
+        comp_date = datetime.strptime(comp["date"], DATE_FORMAT).date()
+
+        if comp_date >= today:
+            upcoming_competitions.append(comp)
+
+    return upcoming_competitions
+
+
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
@@ -72,7 +90,7 @@ def show_summary():
     return render_template(
         'welcome.html',
         club=club,
-        competitions=competitions)
+        competitions=get_competitions_from_today(competitions))
 
 
 @app.route('/book/<competition>/<club>')
@@ -86,7 +104,7 @@ def book(competition, club):
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     found_club = next((c for c in clubs if c['name'] == club), None)
     found_competition = next(
@@ -104,7 +122,7 @@ def book(competition, club):
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     return render_template(
         'booking.html',
@@ -135,14 +153,14 @@ def purchase_places():
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     if places_required > available_places:
         flash("Not enough places available", 'error')
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     if already_booked + places_required > 12:
         flash("You cannot reserve more than 12 places per competition",
@@ -150,14 +168,14 @@ def purchase_places():
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     if places_required > club_points:
         flash("Not enough points", 'error')
         return render_template(
             'welcome.html',
             club=club,
-            competitions=competitions)
+            competitions=get_competitions_from_today(competitions))
 
     competition['numberOfPlaces'] = available_places - places_required
     club['points'] = str(int(club['points']) - places_required)
@@ -170,7 +188,7 @@ def purchase_places():
     return render_template(
         'welcome.html',
         club=club,
-        competitions=competitions)
+        competitions=get_competitions_from_today(competitions))
 
 
 # TODO: Add route for points display
