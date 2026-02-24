@@ -77,6 +77,10 @@ def show_summary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
+    if 'club' not in session:
+        flash("Please log in", "error")
+        return redirect(url_for('index'))
+
     if not competition or not club:
         flash("The name of the club or competition is missing.")
         return render_template(
@@ -143,8 +147,8 @@ def purchase_places():
     competition['numberOfPlaces'] = available_places - places_required
     club['points'] = str(int(club['points']) - places_required)
 
-    flash(f"Great-booking complete, with {places_required} places "
-              f"booked", 'success')
+    flash(f"Great-booking complete, with {places_required} places booked",
+          'success')
 
     return render_template(
         'welcome.html',
@@ -157,6 +161,6 @@ def purchase_places():
 
 @app.route('/logout')
 def logout():
-    session.pop('club', None)
+    session.clear()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))

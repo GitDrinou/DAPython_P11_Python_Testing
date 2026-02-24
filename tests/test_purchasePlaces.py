@@ -84,7 +84,6 @@ def test_prevent_overbooking(client):
         assert ("error", error_msg) in flashed_messages
 
 
-
 def test_points_not_deducted_if_more_than_12_places(client):
     initial_points = int(server.clubs[0]['points'])
     test_data = {
