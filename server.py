@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from typing import TypedDict
 from flask import (Flask, render_template, request, redirect, flash, url_for,
                    session)
-from constants import EMAIL_REGEX, DATE_FORMAT
+from constants import EMAIL_REGEX, DATE_FORMAT, CLUBS_FILE, COMPETITIONS_FILE
 
 
 class Club(TypedDict):
@@ -16,31 +16,31 @@ class Club(TypedDict):
 
 def load_clubs():
     try:
-        with open('clubs.json') as c:
+        with open(CLUBS_FILE) as c:
             list_of_clubs: list[Club] = json.load(c)['clubs']
             return list_of_clubs
     except FileNotFoundError:
-        return {"error": "The file clubs.json could not be found."}
+        return {"error": f"The file {CLUBS_FILE} could not be found."}
     except JSONDecodeError:
-        return {"error": "The clubs.json file is not a valid JSON file."}
+        return {"error": f"The {CLUBS_FILE} file is not a valid JSON file."}
     except KeyError:
-        return {"error": "The clubs.json file does not contain a key "
+        return {"error": f"The {CLUBS_FILE} file does not contain a key "
                          "'clubs'."}
 
 
 def load_competitions():
     try:
-        with open('competitions.json') as comps:
+        with open(COMPETITIONS_FILE) as comps:
             list_of_competitions = json.load(comps)['competitions']
             return list_of_competitions
     except FileNotFoundError:
-        return {"error": "The file competitions.json could not be found."}
+        return {"error": f"The file {COMPETITIONS_FILE} could not be found."}
     except JSONDecodeError:
-        return {"error": "The competitions.json file is not a valid JSON "
+        return {"error": f"The {COMPETITIONS_FILE} file is not a valid JSON "
                          "file."}
     except KeyError:
-        return {"error": "The competitions.json file does not contain a key "
-                         "'competitions'."}
+        return {"error": f"The {COMPETITIONS_FILE} file does not contain a "
+                         f"key 'competitions'."}
 
 
 def get_competitions_from_today(list_of_competitions, now=None):
@@ -58,6 +58,15 @@ def get_competitions_from_today(list_of_competitions, now=None):
             upcoming_competitions.append(comp)
 
     return upcoming_competitions
+
+
+def save_data(file_path: str, root_key: str, items: list):
+    try:
+        with open(file_path, "w") as f:
+            json.dump({root_key: items}, f, indent=4)
+        return {"success": True}
+    except Exception as exception:
+        return {"error": str(exception)}
 
 
 app = Flask(__name__)
@@ -178,6 +187,9 @@ def purchase_places():
     competition['numberOfPlaces'] = available_places - places_required
     club['points'] = str(int(club['points']) - places_required)
     bookings_by_club[club['name']] = already_booked + places_required
+
+    save_data(CLUBS_FILE, "clubs", clubs)
+    save_data(COMPETITIONS_FILE, "competitions", competitions)
 
     success_msg = (f"Great-booking complete, with {places_required} places "
                    f"booked")

@@ -13,7 +13,10 @@
         {
             "name": "Christmas Classico",
             "date": "2026-03-15 13:30:00",
-            "numberOfPlaces": "10"
+            "numberOfPlaces": 0,
+            "bookings_by_club": {
+                "Simply Lift": 10
+            }
         },
         {
             "name": "Winter Fest",
