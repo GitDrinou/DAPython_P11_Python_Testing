@@ -3,8 +3,8 @@ import re
 from datetime import datetime
 from json import JSONDecodeError
 from typing import TypedDict
-from flask import Flask, render_template, request, redirect, flash, url_for, \
-    session
+from flask import (Flask, render_template, request, redirect, flash, url_for,
+                   session)
 from constants import EMAIL_REGEX, DATE_FORMAT
 
 
@@ -95,9 +95,6 @@ def show_summary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
-    if 'club' not in session:
-        flash("Please log in", "error")
-        return redirect(url_for('index'))
 
     if not competition or not club:
         flash("The name of the club or competition is missing.")
@@ -132,6 +129,7 @@ def book(competition, club):
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchase_places():
+
     competition = next(
         (c for c in competitions if c['name'] == request.form['competition']),
         None)
@@ -196,6 +194,6 @@ def purchase_places():
 
 @app.route('/logout')
 def logout():
-    session.clear()
+    session.pop('club', None)
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))

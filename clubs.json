@@ -12,5 +12,13 @@
     {   "name":"She Lifts",
         "email": "kate@shelifts.co.uk",
         "points":"12"
+    },
+    {   "name":"Fit Connection",
+        "email": "brenda@fit-connex.com",
+        "points":"5"
+    },
+    {   "name":"Lift On",
+        "email": "johann@lifton.com",
+        "points":"0"
     }
 ]}
