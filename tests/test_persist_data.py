@@ -2,7 +2,8 @@ import json
 import server
 
 
-def test_purchase_places_persists_points_to_clubs_json(client, tmp_path):
+def test_purchase_places_persists_points_to_clubs_json(logged_client,
+                                                       tmp_path):
     clubs_file = tmp_path / "clubs.json"
     clubs_file.write_text(json.dumps({
         "clubs": [
@@ -28,8 +29,10 @@ def test_purchase_places_persists_points_to_clubs_json(client, tmp_path):
             "club": "Simply Lift",
             "places": "2"
         }
-        response = client.post("/purchasePlaces", data=test_data,
-                               follow_redirects=True)
+        response = logged_client.post(
+            "/purchasePlaces",
+            data=test_data,
+            follow_redirects=True)
         assert response.status_code == 200
 
         saved = json.loads(clubs_file.read_text())
@@ -42,7 +45,7 @@ def test_purchase_places_persists_points_to_clubs_json(client, tmp_path):
 
 
 def test_purchase_places_persists_competition_updates_to_competitions_json(
-    client, tmp_path
+    logged_client, tmp_path
 ):
     competitions_file = tmp_path / "competitions.json"
     competitions_file.write_text(json.dumps({
@@ -68,8 +71,10 @@ def test_purchase_places_persists_competition_updates_to_competitions_json(
             "club": "Simply Lift",
             "places": "2"
         }
-        response = client.post("/purchasePlaces", data=test_data,
-                               follow_redirects=True)
+        response = logged_client.post(
+            "/purchasePlaces",
+            data=test_data,
+            follow_redirects=True)
         assert response.status_code == 200
 
         saved = json.loads(competitions_file.read_text())

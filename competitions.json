@@ -26,7 +26,10 @@
         {
             "name": "Muscle Festival",
             "date": "2026-03-01 13:30:00",
-            "numberOfPlaces": "5"
+            "numberOfPlaces": 3,
+            "bookings_by_club": {
+                "Simply Lift": 2
+            }
         }
     ]
 }

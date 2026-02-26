@@ -19,6 +19,16 @@ def client(app):
             yield client
 
 
+@pytest.fixture
+def logged_client(client):
+    client.post(
+        "/showSummary",
+        data={"email": "john@simplylift.co"},
+        follow_redirects=True,
+    )
+    return client
+
+
 @pytest.fixture(autouse=True)
 def reset_data():
     server.clubs.clear()

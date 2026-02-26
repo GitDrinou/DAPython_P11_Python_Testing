@@ -1,26 +1,26 @@
 from flask import get_flashed_messages
 
 
-def test_booking_success(client):
-    response = client.get('/book/Spring Festival/Simply Lift')
+def test_booking_success(logged_client):
+    response = logged_client.get('/book/Spring Festival/Simply Lift')
     assert response.status_code == 200
     assert b'<form action="/purchasePlaces"' in response.data
     assert b'<button type="submit">Book</button>' in response.data
 
 
-def test_club_not_found(client):
-    response = client.get('/book/Spring Festival/UnknownClubTest')
+def test_club_not_found(logged_client):
+    response = logged_client.get('/book/Spring Festival/UnknownClubTest')
     error_msg = "The club 'UnknownClubTest' was not found."
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages
 
 
-def test_competition_not_found(client):
-    response = client.get('/book/UnknownCompetitionTest/Simply Lift')
+def test_competition_not_found(logged_client):
+    response = logged_client.get('/book/UnknownCompetitionTest/Simply Lift')
     error_msg = "The competition 'UnknownCompetitionTest' was not found."
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages

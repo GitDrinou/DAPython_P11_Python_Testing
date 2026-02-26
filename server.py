@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import datetime
+from functools import wraps
 from json import JSONDecodeError
 from typing import TypedDict
 from flask import (Flask, render_template, request, redirect, flash, url_for,
@@ -76,6 +77,17 @@ competitions = load_competitions()
 clubs = load_clubs()
 
 
+def login_required(view_func):
+    @wraps(view_func)
+    def wrapper(*args, **kwargs):
+        if "club" not in session:
+            flash("You must be logged in to access this page.", "error")
+            return redirect(url_for("index"))
+        return view_func(*args, **kwargs)
+
+    return wrapper
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -96,6 +108,8 @@ def show_summary():
               "again.", 'error')
         return redirect(url_for('index'))
 
+    session["club"] = club["name"]
+
     return render_template(
         'welcome.html',
         club=club,
@@ -103,6 +117,7 @@ def show_summary():
 
 
 @app.route('/book/<competition>/<club>')
+@login_required
 def book(competition, club):
 
     if not competition or not club:
@@ -137,6 +152,7 @@ def book(competition, club):
 
 
 @app.route('/purchasePlaces', methods=['POST'])
+@login_required
 def purchase_places():
 
     competition = next(

@@ -2,7 +2,7 @@ import server
 from flask import get_flashed_messages
 
 
-def test_purchase_places_success(client):
+def test_purchase_places_success(logged_client):
     success_msg = "Great-booking complete, with 2 places booked"
     test_data = {
         'competition': 'Spring Festival',
@@ -10,10 +10,12 @@ def test_purchase_places_success(client):
         'places': '2'
     }
 
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("success", success_msg) in flashed_messages
 
@@ -21,7 +23,7 @@ def test_purchase_places_success(client):
     assert int(server.clubs[0]['points']) == 11
 
 
-def test_competition_full_message(client):
+def test_competition_full_message(logged_client):
     competition = next(
         (c for c in server.competitions if c['name'] == 'Spring Festival'),
         None)
@@ -33,71 +35,81 @@ def test_competition_full_message(client):
         'places': '1'
     }
 
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages
 
 
-def test_points_deduction_after_purchase(client):
+def test_points_deduction_after_purchase(logged_client):
     initial_points = int(server.clubs[0]['points'])
     test_data = {
         'competition': 'Spring Festival',
         'club': 'Simply Lift',
         'places': '2'
     }
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
     assert int(server.clubs[0]['points']) == initial_points - 2
 
 
-def test_purchase_more_than_12_places(client):
+def test_purchase_more_than_12_places(logged_client):
     error_msg = "You cannot reserve more than 12 places per competition"
     test_data = {
         'competition': 'Spring Festival',
         'club': 'Simply Lift',
         'places': '13'
     }
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages
 
 
-def test_prevent_overbooking(client):
+def test_prevent_overbooking(logged_client):
     error_msg = "Not enough places available"
     test_data = {
         'competition': 'Spring Festival',
         'club': 'Simply Lift',
         'places': '50'
     }
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages
 
 
-def test_points_not_deducted_if_more_than_12_places(client):
+def test_points_not_deducted_if_more_than_12_places(logged_client):
     initial_points = int(server.clubs[0]['points'])
     test_data = {
         'competition': 'Spring Festival',
         'club': 'Simply Lift',
         'places': '13'
     }
-    response = client.post('/purchasePlaces', data=test_data,
-                           follow_redirects=True)
+    response = logged_client.post(
+        '/purchasePlaces',
+        data=test_data,
+        follow_redirects=True)
     assert response.status_code == 200
     assert int(server.clubs[0]['points']) == initial_points
 
 
-def test_cannot_book_more_than_12_total_for_same_competition(client):
+def test_cannot_book_more_than_12_total_for_same_competition(logged_client):
     error_msg = "You cannot reserve more than 12 places per competition"
     test_data1 = {
         "competition": "Spring Festival",
@@ -109,7 +121,7 @@ def test_cannot_book_more_than_12_total_for_same_competition(client):
         "club": "Simply Lift",
         "places": "1"
     }
-    response1 = client.post(
+    response1 = logged_client.post(
         "/purchasePlaces",
         data=test_data1,
         follow_redirects=True,
@@ -118,13 +130,13 @@ def test_cannot_book_more_than_12_total_for_same_competition(client):
     assert int(server.competitions[0]["numberOfPlaces"]) == 13
     assert int(server.clubs[0]["points"]) == 1
 
-    response2 = client.post(
+    response2 = logged_client.post(
         "/purchasePlaces",
         data=test_data2,
         follow_redirects=True,
     )
     assert response2.status_code == 200
-    with client.session_transaction():
+    with logged_client.session_transaction():
         flashed_messages = get_flashed_messages(with_categories=True)
         assert ("error", error_msg) in flashed_messages
     assert int(server.competitions[0]["numberOfPlaces"]) == 13
