@@ -1,14 +1,27 @@
 {
-    "clubs": [
-        {
-            "name": "Simply Lift",
-            "email": "john@simplylift.co",
-            "points": "1"
-        },
-        {
-            "name": "Iron Temple",
-            "email": "admin@irontemple.com",
-            "points": "4"
-        }
-    ]
+  "clubs":
+  [
+      {
+          "name":"Simply Lift",
+          "email":"john@simplylift.co",
+          "points":"13"
+      },
+      {
+          "name":"Iron Temple",
+          "email": "admin@irontemple.com",
+          "points":"4"
+      },
+      {   "name":"She Lifts",
+          "email": "kate@shelifts.co.uk",
+          "points":"12"
+      },
+      {   "name":"Fit Connection",
+          "email": "brenda@fit-connex.com",
+          "points":"5"
+      },
+      {   "name":"Lift On",
+          "email": "johann@lifton.com",
+          "points":"0"
+      }
+  ]
 }
