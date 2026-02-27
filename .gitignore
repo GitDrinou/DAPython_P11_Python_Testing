@@ -9,3 +9,6 @@ __init__.py
 .env
 .idea/
 Pipfile.lock
+Pipfile
+.coverage
+htmlcov/
